@@ -1,0 +1,4 @@
+node_modules/
+.env
+/services/users/.env
+/services/users/dist
