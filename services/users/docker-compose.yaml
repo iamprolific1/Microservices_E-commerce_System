@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  app:
+    build: 
+      context: .
+    ports:
+      - "3001:3001" # Map port 3001 on the host to port 3001 in the container
+    environment: # Environment variables for the app
+      NODE_ENV: development
+      DB_HOST: UserDB 
+      DB_PORT: 27017
+      DB_NAME: demo
+    depends_on:
+      - UserDB # Ensure the database starts before the app
+    volumes:
+      - .:/app # Mount local code for live updates
+      - /app/node_modules # Ensure isolation of dependencies
+
+  db: # The MongoDB database
+    image: mongo # Use the official MongoDB image
+    container_name: e-commerce-user-services
+    ports:
+      - "27017:27017" # Map the database port
+    volumes:
+      - db_data:/data/db # Persist database data
+
+volumes:
+  db_data: # Named volume for MongoDB data
