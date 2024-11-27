@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+
 export interface DbConfig {
     uri: string;
     dbName?: string;
@@ -18,11 +19,11 @@ export class DbConnection implements DbConfig {
         try {
             const options = { dbName: this.dbName };
             await mongoose.connect(this.uri, options);
-            console.log("Connected to MongoDB");
+            console.log('Connected to mongoDB database');
             return;
         } catch (error) {
-            console.error("Error connecting to the database: ", error);
-            throw error;
+            console.error('Error connecting to database: ', error);
+            return;
         }
     }
 
@@ -32,6 +33,7 @@ export class DbConnection implements DbConfig {
             console.log("Disconnected from MongoDB");
         } catch (error) {
             console.error("Error disconnecting from database: ", error);
+            return;
         }
     }
 }
