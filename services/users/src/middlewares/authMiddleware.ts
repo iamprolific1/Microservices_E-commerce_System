@@ -1,30 +1,45 @@
 import { Request, Response, NextFunction } from "express";
+import axios from 'axios';
 import jwt from "jsonwebtoken";
+import { User } from "../models/User"
+import dotenv from 'dotenv';
+dotenv.config();
 
-interface AuthenticateRequest extends Request {
-    user?: { id: string; role: string }
-}
+// interface AuthenticateRequest extends Request {
+//     user?: { id: string; }
+// }
 
-export const authenticate = (req: AuthenticateRequest, res: Response, next: NextFunction): void=> {
-    const token = req.headers.authorization?.split(' ')[1];
-    if(!token) {
-        res.status(401).json({ message: "User is not authorized"});
+export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
+    const token = req.headers['authorization']?.split(' ')[1];
+    if (!token) {
+        res.status(401).json({ message: "Access token is missing" });
         return;
     }
 
-    try {
-        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string) as { id: string, role: string };
-        req.user = decoded;
+    try{
+        const response = await axios.post(process.env.AUTH_SERVICE_VERIFY_TOKEN_URL as string,null,{
+            headers: {
+                authorization: `Bearer ${token}`,
+            },
+        });
+        req.user = response.data.user;
         next();
-    } catch (error) {
-        console.error("Error verifying access token: ", error);
+    } catch(error) {
+        console.error("Token verification failed: ", error);
         res.status(500).json({ message: "Internal server error" });
-        return
+        return;
     }
 }
 
-export const adminOnly = (req: AuthenticateRequest, res: Response, next: NextFunction)=> {
-    if(req.user?.role !== 'Admin') {
+export const adminOnly = async (req: Request, res: Response, next: NextFunction)=> {
+    const adminId = req.user?.id;
+    const admin = await User.findById(adminId);
+    if(!admin) {
+        res.status(404).json({ message: "Admin not found" });
+        return
+    }
+    const role = admin.role;
+    if(role !== 'Admin') {
         res.status(403).json({ message: "Access denied: Admin access only" });
         return;
     }

@@ -1,8 +1,12 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from "express";
+import axios from 'axios';
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { User } from "../models/User";
-import { generateAccessToken, generateRefreshToken } from '../utils/generateToken';
+// import { generateAccessToken, generateRefreshToken } from '../utils/generateToken';
+import { publishMessage } from "../utils/rabbitmq";
+import dotenv from 'dotenv';
+dotenv.config();
 
 
 export const registerUser = async(req: Request, res: Response)=> {
@@ -22,6 +26,7 @@ export const registerUser = async(req: Request, res: Response)=> {
             role
         })
         await user.save();
+        await publishMessage('user-events', { event: 'UserCreated', userId: user._id });
         res.status(201).json({ message: "User is created successfully!", user });
         return;
     } catch (error) {
@@ -31,56 +36,42 @@ export const registerUser = async(req: Request, res: Response)=> {
 }
 
 export const loginUser = async(req: Request, res: Response)=> {
-    const { email, password } = req.body
+    const { email, password } = req.body;
+
     try {
-        const user = await User.findOne({ email });
-        if (!user) {
-            res.status(404).json({ message: "User not found" });
-            return;
-        }
-        const verifyPassword = await bcrypt.compare(password, user.password);
-        if(!verifyPassword) {
-            res.status(403).json({ message: "Incorrect credentials" });
-            return
-        }
+        // calling Auth-service to authenticate user
+        const response = await axios.post(process.env.AUTH_SERVICE_LOGIN_URL as string, { email, password });
         
-        const accessToken = generateAccessToken(user);
-        const refreshToken = generateRefreshToken(user);
-        res.status(200).json({ message: "User authenticated successfully", accessToken, refreshToken,  userData: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-        }});
+        const { accessToken, refreshToken } = response.data;
+        res.status(200).json({
+            message: "User authenticated successfully",
+            accessToken,
+            refreshToken
+        });
         return;
-    } catch(error) {
-        console.error("Error authenticating user account: ", error);
+    } catch (error) {
+        console.error("Error authenticating user--: ", error);
+        res.status(500).json({ message: "Internal server error" });
         return;
     }
 }
 
 export const refreshToken = async(req: Request, res: Response)=> {
     const { token } = req.body;
-    if (!token) {
-        res.status(404).json({ message: "token not found"});
-        return;
-    }
     try{
-        const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET as string) as { id: string };
-        const user = await User.findById(decoded.id);
-
-        if(!user) {
-            res.status(404).json({ message: "User not found" });
-            return;
-        }
-        const accessToken = generateAccessToken(user);
-        res.status(200).json({ message: "Access token refreshed successfully", accessToken });
+        const response = await axios.post(process.env.AUTH_SERVICE_REFRESH_URL as string, { token });
+        const { accessToken } = response.data;
+        res.status(200).json({
+            message: "Access token refreshed successfully",
+            accessToken
+        });
         return;
     } catch(error) {
         console.error("Error refreshing access token: ", error);
-        res.status(403).json({ message: "Access token expired" });
+        res.status(500).json({ message: "Internal server error" });
         return;
     }
+
 }
 
 export const getAllUsers = async(req: Request, res: Response)=> {

@@ -1,4 +1,7 @@
 node_modules/
 .env
 /services/users/.env
+/services/auth/.env
 /services/users/dist
+/services/auth/dist
+/shared/.env

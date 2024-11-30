@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import { runConnection } from './config';
+import { connectRabbitMQ } from './utils/rabbitmq';
 import userRoute from './routes/user.route';
 
 dotenv.config();
@@ -15,7 +16,8 @@ app.use(cors({
 }))
 app.use('/api/auth', userRoute);
 
-app.listen(PORT, ()=> {
+app.listen(PORT, async()=> {
     console.log(`server is running on port: ${PORT}`);
-    runConnection()
+    await connectRabbitMQ()
+    runConnection();
 })
