@@ -1,0 +1,11 @@
+  products-service:
+    build:
+      context: ./services/products
+    container_name: products-service
+    ports:
+      - "3002:3002"
+    environment:
+      - DB_URI=mongodb://mongo:27017/products
+      - PORT=3002
+    depends_on:
+      - mongo

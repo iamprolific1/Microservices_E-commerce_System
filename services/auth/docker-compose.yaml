@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  auth-service:
+    build:
+      context: ./auth-service
+    container_name: auth-service
+    ports:
+      - "4000:4000" # Expose the auth service on port 4000
+    environment:
+      - PORT=4000
+      - ACCESS_TOKEN_SECRET=access_token_secret_key
+      - REFRESH_TOKEN_SECRET=refresh_token_secret_key
+      - DB_CONNECTION=mongodb://mongo:27017/authdb
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:5
+    container_name: auth-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - auth-db-data:/data/db
+
+volumes:
+  auth-db-data:

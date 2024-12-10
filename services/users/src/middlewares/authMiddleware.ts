@@ -1,13 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import axios from 'axios';
-import jwt from "jsonwebtoken";
 import { User } from "../models/User"
 import dotenv from 'dotenv';
 dotenv.config();
 
-// interface AuthenticateRequest extends Request {
-//     user?: { id: string; }
-// }
 
 export const authenticate = async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers['authorization']?.split(' ')[1];

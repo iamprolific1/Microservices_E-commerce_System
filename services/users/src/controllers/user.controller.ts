@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
 import axios from 'axios';
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { User } from "../models/User";
-// import { generateAccessToken, generateRefreshToken } from '../utils/generateToken';
 import { publishMessage } from "../utils/rabbitmq";
 import dotenv from 'dotenv';
 dotenv.config();
@@ -26,7 +24,6 @@ export const registerUser = async(req: Request, res: Response)=> {
             role
         })
         await user.save();
-        await publishMessage('user-events', { event: 'UserCreated', userId: user._id });
         res.status(201).json({ message: "User is created successfully!", user });
         return;
     } catch (error) {
