@@ -38,12 +38,13 @@ export const loginUser = async(req: Request, res: Response)=> {
     try {
         // calling Auth-service to authenticate user
         const response = await axios.post(process.env.AUTH_SERVICE_LOGIN_URL as string, { email, password });
-        
-        const { accessToken, refreshToken } = response.data;
+        console.log(response.data)
+        const { accessToken, refreshToken, userId } = response.data;
         res.status(200).json({
             message: "User authenticated successfully",
             accessToken,
-            refreshToken
+            refreshToken,
+            userId
         });
         return;
     } catch (error) {

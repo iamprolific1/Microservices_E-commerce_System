@@ -2,8 +2,14 @@ import request from 'supertest';
 import mongoose from 'mongoose';
 import { app } from '../src/server';
 import { User } from '../src/models/User';
-import { generateAccessToken, generateRefreshToken } from '../src/utils/generateToken';
+import { generateAccessToken, generateRefreshToken } from '../../../shared/src/utils/jwt-utils';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '.env.test' });
+
+jest.setTimeout(10000);
+
 
 beforeAll(async()=> {
     await mongoose.connect('mongodb://localhost:27017/test');

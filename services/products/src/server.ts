@@ -6,7 +6,7 @@ import { runConnection } from './config';
 import { connectRabbitMQ } from './utils/rabbitmq';
 import productRouter from './routes/product.route';
 
-const app = express();
+export const app = express();
 const PORT = process.env.PORT || 3002;
 
 app.use(express.json());

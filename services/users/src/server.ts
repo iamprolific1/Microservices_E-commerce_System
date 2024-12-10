@@ -19,5 +19,5 @@ app.use('/api/auth', userRoute);
 app.listen(PORT, async()=> {
     console.log(`server is running on port: ${PORT}`);
     await connectRabbitMQ()
-    // runConnection();
+    runConnection();
 })

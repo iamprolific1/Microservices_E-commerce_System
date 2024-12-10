@@ -25,6 +25,7 @@ export const loginUser = async(req: Request, res: Response)=> {
         }
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
+        const userId = user._id;
         
         // Update or save refreshToken in AuthUser collection
         const existingAuthUser = await AuthUser.findOne({ email });
@@ -38,7 +39,7 @@ export const loginUser = async(req: Request, res: Response)=> {
             })
             await authUser.save();
         }
-        res.status(200).json({ accessToken, refreshToken });
+        res.status(200).json({ accessToken, refreshToken, userId });
         return;
     } catch (error) {
         console.error("Error authenticating user: ", error);
