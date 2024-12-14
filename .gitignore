@@ -1,10 +1,14 @@
 node_modules/
 .env
+.env.test
 /services/users/.env
 /services/users/.env.test
 /services/auth/.env
 /services/users/dist
 /services/auth/dist
+/services/products/dist
 /services/products/.env
 /services/products/.env.test
+/services/orders/.env
+/services/orders/.env.test
 /shared/.env
