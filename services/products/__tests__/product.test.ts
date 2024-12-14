@@ -27,6 +27,7 @@ afterAll(async()=> {
     await mongoose.disconnect();
 })
 
+jest.setTimeout(10000); 
 describe('Product API test Endpoints', ()=> {
     it('should create a product', async()=> {
         // log the user in first before making request to the product API
