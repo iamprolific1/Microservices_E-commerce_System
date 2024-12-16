@@ -22,7 +22,7 @@ COPY . /app
 WORKDIR /app/src
 
 # Expose the port your service listens on
-EXPOSE 3002
+EXPOSE 3000
 
 # Define environment variables (optional)
 ENV NODE_ENV=production

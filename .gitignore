@@ -7,6 +7,8 @@ node_modules/
 /services/users/dist
 /services/auth/dist
 /services/products/dist
+/services/orders/dist
+/services/payments/dist
 /services/products/.env
 /services/products/.env.test
 /services/orders/.env

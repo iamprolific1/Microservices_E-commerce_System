@@ -1,0 +1,11 @@
+  productservice:
+    build:
+      context: ./services/payments
+    container_name: payment
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_URI=mongodb://mongo:27017/payments
+      - PORT=3000
+    depends_on:
+      - mongo
