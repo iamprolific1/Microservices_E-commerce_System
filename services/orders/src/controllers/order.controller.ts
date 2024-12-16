@@ -183,3 +183,30 @@ export const getOrderHistory = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+export const validateOrders = async(req: Request, res: Response)=> {
+    try{
+        const { orderIds } = req.body;
+        if(!Array.isArray(orderIds) || orderIds.length === 0){
+            res.status(400).json({ message: "Order Ids are required & must be an array" });
+            return;
+        }
+
+        const validOrders = await Order.find({ _id: { $in: orderIds } }).select('_id');
+        const validOrderIds = validOrders.map(order => order._id.toString());
+
+        const missingOrderIds = orderIds.filter(id => !validOrderIds.includes(id));
+        if(missingOrderIds.length > 0) {
+            res.status(404).json({ message: "Some order Ids are invalid", missingOrderIds });
+            return;
+        }
+        
+        await publishMessage('order-events', { event: 'OrderValidated', validOrderIds });
+        res.status(200).json({ message: "All orders are valid", orderIds });
+        return;
+    } catch(error) {
+        console.error("Error validating orderId: ", error);
+        res.status(500).json({ message: "Internal server error" });
+        return;
+    }
+}

@@ -1,6 +1,7 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface Order extends Document {
+    _id: Types.ObjectId;
     userId: string;
     items: {
         productId: string;
